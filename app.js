@@ -5,26 +5,40 @@ import { Router, browserHistory, match } from 'react-router';
 
 import Root from './Root';
 
-const asyncComponent = bundle => (nextState, callback) => {
-	bundle.then(component => {
-		callback(null, component.default ? component.default : component);
-	});
-};
+// const asyncComponent = bundle => (nextState, callback) => {
+// 	bundle.then(component => callback(null, component.default ? component.default : component));
+// };
+
+const loadRoute = cb => {
+    return (module) => cb(null, module.default);
+}
 
 const routes = {
     path: '/',
     component: Root,
     indexRoute: {
-        getComponent: asyncComponent(import(/* webpackChunkName: "Home", webpackMode: "lazy" */ './Home.js'))
+    getComponent(location, cb){
+            System.import(/* webpackChunkName: "Home", webpackMode: "lazy" */ './Home.js')
+            .then(loadRoute(cb))
+            .catch(errorLoading);
+        }
     },
     childRoutes: [
         {
             path: '/page-a',
-            getComponent: asyncComponent(import(/* webpackChunkName: "PageA", webpackMode: "lazy" */ './PageA.js'))
+            getComponent(location, cb){
+                System.import(/* webpackChunkName: "PageA", webpackMode: "lazy" */ './PageA.js')
+                .then(loadRoute(cb))
+                .catch(errorLoading);
+            }
         },
         {
             path: '/page-b',
-            getComponent: asyncComponent(import(/* webpackChunkName: "PageB", webpackMode: "lazy" */ './PageB.js'))
+            getComponent(location, cb){
+                System.import(/* webpackChunkName: "PageB", webpackMode: "lazy" */ './PageB.js')
+                .then(loadRoute(cb))
+                .catch(errorLoading);
+            }
         }
     ]
 }
